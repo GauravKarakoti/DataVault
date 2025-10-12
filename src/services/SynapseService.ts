@@ -10,8 +10,6 @@ export class SynapseService {
   async initialize(): Promise<void> {
     try {
       this.synapse = await Synapse.create({
-        // You must provide one of these: privateKey, provider, or signer
-        // This example assumes you're using a private key from environment variables
         privateKey: import.meta.env.VITE_WALLET_PRIVATE_KEY,
         rpcURL: import.meta.env.VITE_RPC_URL,
       });
@@ -37,22 +35,27 @@ export class SynapseService {
     const synapse = this.getSynapse();
 
     const encryptedFile = await this.encryptFile(file);
-    
-    // 1. Ensure all values in the metadata object are strings
+    console.log("Encrypted File:",encryptedFile)
     const metadata: Record<string, string> = {
       fileName: file.name,
-      fileSize: file.size.toString(), // Convert number to string
+      fileSize: file.size.toString(),
       mimeType: file.type,
-      // Convert the compliance object to a JSON string
       compliance: JSON.stringify(compliance), 
-      retentionPeriod: compliance.retentionPeriod.toString(), // Convert number to string
+      // Use the correct metadata key 'retention'
+      retention: compliance.retentionPeriod.toString(),
       encryptionHash: await this.generateFileHash(file)
     };
+    console.log("Metadata:",metadata)
 
     const storageManager = synapse.storage;
-    const storageContext = await storageManager.createContext();
-
-    // 2. Pass the metadata object directly, without JSON.stringify()
+    console.log("Storage Manager:",storageManager)
+    const storageContext = await storageManager.createContext({
+      metadata: {
+        retention: compliance.retentionPeriod.toString(),
+      }
+    });
+    console.log("Storage Context:",storageContext)
+    
     const storageResult = await storageContext.upload(await encryptedFile.arrayBuffer(), {
       metadata: metadata,
     });

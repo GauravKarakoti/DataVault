@@ -27,7 +27,9 @@ export const ComplianceUploader: React.FC<ComplianceUploaderProps> = ({
     setIsUploading(true);
     try {
       const synapseService = new SynapseService();
+      console.log("Service Created:", synapseService)
       await synapseService.initialize();
+      console.log("Intialized")
 
       const complianceReq: ComplianceRequirement = {
         regulation: complianceType,
@@ -36,11 +38,13 @@ export const ComplianceUploader: React.FC<ComplianceUploaderProps> = ({
         encryptionRequired: true,
         auditTrailRequired: true
       };
+      console.log("Compliance:",complianceReq)
 
       const metadata = await synapseService.storeCompliantDocument(
         selectedFile,
         complianceReq
       );
+      console.log("Metadata:",metadata)
 
       onUploadComplete(metadata);
     } catch (error) {
