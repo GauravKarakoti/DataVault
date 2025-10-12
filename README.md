@@ -1,6 +1,6 @@
 # DataVault - Decentralized Compliance Storage
 
-![DataVault Banner](./Logo.png)
+![DataVault Banner](./public/vite.svg)
 
 ## Overview
 DataVault is an enterprise-grade compliance storage platform that combines Filecoin's decentralized storage with automated compliance features. Built on Filecoin Onchain Cloud, it provides regulated industries with tamper-proof, auditable storage with instant retrieval capabilities.
