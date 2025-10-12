@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/components/auditdashboard.tsx","./src/components/complianceuploader.tsx","./src/context/filecoincontext.tsx","./src/hooks/usesynapsestorage.ts","./src/services/synapseservice.ts","./src/types/compliance.ts","./src/utils/encryption.ts","./vite-env.d.ts"],"version":"5.9.3"}

@@ -55,7 +55,7 @@ export class SynapseService {
       }
     });
     console.log("Storage Context:",storageContext)
-    
+
     const storageResult = await storageContext.upload(await encryptedFile.arrayBuffer(), {
       metadata: metadata,
     });
@@ -85,14 +85,15 @@ export class SynapseService {
     const synapse = this.getSynapse();
     
     const fileData = await synapse.storage.download(documentId, {
-      withCDN: true, // Equivalent to your 'cdn: true'
+      withCDN: true,
     });
 
     // Generate compliance proof
     const complianceProof = await this.generateComplianceProof(documentId, auditContext);
 
+    // FIX: Create a new Blob from a copy of the buffer to resolve the type error.
     return {
-      file: new Blob([fileData]),
+      file: new Blob([fileData.slice().buffer]),
       auditTrail: complianceProof
     };
   }
