@@ -42,7 +42,7 @@ export const decryptFile = (ciphertextBase64: string, passphrase: string, ivStri
 
   const decrypted = CryptoJS.AES.decrypt(cipherParams, passphrase);
   const typedArray = convertWordArrayToUint8Array(decrypted);
-  return typedArray.buffer;
+  return typedArray.buffer as ArrayBuffer;
 };
 
 

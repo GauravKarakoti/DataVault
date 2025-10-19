@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Shield, FileText, LockIcon, UnlockIcon } from 'lucide-react'; // Added icons
+import { Search, Download, Shield, FileText, LockIcon, UnlockIcon } from 'lucide-react'; // Added icons
 import { StorageMetadata, AuditTrail } from '../types/compliance';
 import { SynapseService } from '../services/SynapseService';
 
@@ -96,9 +96,16 @@ export const AuditDashboard: React.FC<AuditDashboardProps> = ({ documents }) => 
         <h2>Compliance Audit Dashboard</h2>
       </div>
 
-      {/* Search Section */}
       <div className="search-section">
-        {/* ... search input ... */}
+        <div className="search-input">
+          <Search className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search documents by name or regulation..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       </div>
 
       {/* Documents Grid */}
