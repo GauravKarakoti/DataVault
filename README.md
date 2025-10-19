@@ -3,144 +3,131 @@
 ![DataVault Banner](./public/vite.svg)
 
 ## Overview
-DataVault is an enterprise-grade compliance storage platform that combines Filecoin's decentralized storage with automated compliance features. Built on Filecoin Onchain Cloud, it provides regulated industries with tamper-proof, auditable storage with instant retrieval capabilities.
+DataVault is an enterprise-grade compliance storage platform built on Filecoin. It leverages the **Synapse SDK** to interact with Filecoin's decentralized storage network, providing automated compliance features suitable for regulated industries. Key features include client-side encryption, metadata management for compliance (like retention periods), and audit trail capabilities facilitated by decentralized, tamper-proof storage with potential for fast retrieval.
 
 ## 🚀 Features
 
-- **Automated Compliance**: Built-in audit trails and regulatory proof generation
-- **Warm Storage**: Fast retrieval with Filecoin Warm Storage Service
-- **Streaming Payments**: Dynamic pricing with Filecoin Pay
-- **Instant Access**: FilCDN-powered retrieval for audit scenarios
-- **Data Integrity**: Continuous PDP verification and proof of possession
-- **Enterprise Ready**: Role-based access, encryption, and compliance reporting
+- **Client-Side Encryption**: Uses AES encryption via `crypto-js` before data leaves the browser.
+- **Decentralized Storage**: Stores encrypted data on the Filecoin network via the Synapse SDK.
+- **Automated Compliance Metadata**: Stores compliance requirements (regulation type, retention period) alongside data using Synapse metadata features.
+- **Audit Access & Retrieval**: Allows retrieval of encrypted data for audit purposes, requiring the original passphrase for decryption.
+- **Integrity Verification**: Generates and stores a SHA-256 hash of the original file for integrity checks upon retrieval.
+- **Potential for Fast Retrieval**: Can utilize FilCDN via Synapse SDK options for quicker access during audits.
+- **Enterprise Ready (Concept)**: UI includes role-based concepts and compliance reporting placeholders.
 
 ## 🛠 Tech Stack
 
-### Filecoin Onchain Cloud Services
-- **Synapse SDK** - Primary integration and service orchestration
-- **Filecoin Warm Storage** - Fast, verifiable storage layer
-- **Filecoin Pay** - Streaming payments and settlement
-- **FilCDN** - High-speed content delivery
-- **PDP Contracts** - Data possession verification
+### Core Filecoin Integration (via Synapse SDK)
+- **Synapse SDK**: Primary library used in `src/services/SynapseService.ts` for interacting with Filecoin.
+- **Filecoin Decentralized Storage**: The underlying storage network accessed via `synapse.storage.createContext()` and `storageContext.upload()`.
+- **FilCDN**: Content delivery network accessed via `synapse.storage.download()` with the `withCDN: true` option.
+- **(Implicit via Synapse)**: Features like PDP (Proof of Data Possession), Warm Storage, and Payments are likely handled or configured at the Synapse SDK level or backend, not directly managed in this frontend code.
 
-### Additional Technologies
-- Frontend: React, TypeScript, Tailwind CSS
-- Backend: Node.js, Express
-- Storage: IPFS, Filecoin Network
-- Smart Contracts: Solidity, Hardhat
+### Frontend & Utilities
+- Frontend: React, TypeScript, Vite, CSS
+- Encryption: `crypto-js` for AES encryption and SHA-256 hashing
+- UI Components: Basic React components, `lucide-react` for icons.
+
+### Smart Contracts (Experimental/Separate)
+- **Solidity/Hardhat**: Contains contracts like `ComplianceStorage.sol`.
+  - **Note:** `ComplianceStorage.sol` defines structures for on-chain metadata but is **not currently integrated** into the primary upload/download flow which uses Synapse SDK's metadata.
+  - `Lock.sol` is example code from Hardhat template.
 
 ## 📋 Prerequisites
 
-- Node.js 16+
-- npm or yarn
-- Filecoin wallet with testnet FIL
-- Access to Filecoin Onchain Cloud services
+- Node.js (Version specified in `package.json` engines or >=18 recommended for latest dependencies)
+- npm or yarn or pnpm
+- Web3 Wallet Private Key (for testnet/dev environment)
+- RPC URL for Filecoin Network (e.g., Calibration testnet)
 
 ## 🏁 Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/datavault.git
+git clone [https://github.com/your-username/datavault.git](https://github.com/your-username/datavault.git)
 cd datavault
 
 # Install dependencies
-npm install
+npm install # or yarn install / pnpm install
 
 # Set up environment variables
 cp .env.example .env
-# Edit .env with your configuration
+# Edit .env with your private key and RPC URL
 ```
 
 ## ⚙️ Configuration
-1. Filecoin Onchain Cloud Setup:
-```javascript
-// src/config/synapse.js
-import { SynapseSDK } from '@synapse-sdk/core';
-
-export const synapse = new SynapseSDK({
-  network: 'filecoin-testnet',
-  warmStorage: true,
-  paymentEnabled: true
-});
-```
-2. Wallet Configuration:
-```bash
-# Add your wallet private key to .env
-WALLET_PRIVATE_KEY=your_private_key_here
-FILEPAY_CONTRACT_ADDRESS=0x...
-WARM_STORAGE_CONTRACT_ADDRESS=0x...
-```
+1. Environment Variables (`.env` file):
+- `VITE_WALLET_PRIVATE_KEY`: Your wallet's private key ( NEVER commit this to Git). Used by `SynapseService.ts` to initialize the SDK.
+- `VITE_RPC_URL`: RPC endpoint for the desired Filecoin network (e.g., Calibration testnet).
+- `VITE_COMPLIANCE_CONTRACT_ADDRESS` (Optional): Address if deploying and integrating `ComplianceStorage.sol`. Currently unused in the main flow.
 
 ## 🚀 Usage
-### Storage with Compliance
-```javascript
-import { DataVault } from './src/services/datavault';
-
-const vault = new DataVault();
-const result = await vault.storeCompliantDocument(
-  fileBuffer,
-  'healthcare-record',
-  {
-    retentionPeriod: '7years',
-    complianceType: 'HIPAA',
-    auditTrail: true
-  }
-);
+1. Run the Development Server:
+```Bash
+npm run dev
 ```
-### Retrieval for Audit
-```javascript
-const document = await vault.retrieveForAudit(
-  documentId,
-  {
-    auditor: 'regulatory-body',
-    purpose: 'compliance-audit'
-  }
-);
-```
-### Payment Management
-```javascript
-const paymentStatus = await vault.getPaymentStream(
-  storageAgreementId
-);
-```
+2. Open the App: Navigate to the local URL provided by Vite.
+3. Upload:
+- Select a regulatory framework.
+- Choose a file.
+- Enter a secure passphrase (this is critical for encryption and later decryption).
+- Click "Store Compliant Document". The file will be encrypted client-side and uploaded via Synapse.
+4. Audit:
+- Switch to the "Audit Dashboard" tab.
+- Find the document.
+- Click "Audit Access".
+- Enter the correct passphrase used during upload.
+- Click "Decrypt & Download" to retrieve, decrypt, and download the original file. An audit trail entry is also logged locally.
 
 ## 🏗 Architecture
-```text
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Client App    │───▶│   DataVault API   │───▶│  Synapse SDK    │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-         │                       │                       │
-         │                       │                       │
-         ▼                       ▼                       ▼
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│ Audit Dashboard  │    │ Compliance Engine│    │Filecoin Services│
-└─────────────────┘    └──────────────────┘    └─────────────────┘
+```plaintext
+┌──────────────────┐      ┌────────────────────┐      ┌────────────────┐
+│ React Components │────▶│  SynapseService.ts │────▶│   Synapse SDK  │
+│ (Uploader, Dash) │      │ (Encrypt, Upload,  │      │ (@filoz/...)   │
+└──────────────────┘      │  Download, Decrypt)│      └────────────────┘
+         ▲                  └────────────────────┘             │
+         │ (User Interaction)        │ (Calls)                 │ (Filecoin Network)
+         ▼                           ▼                         ▼
+┌──────────────────┐      ┌────────────────────┐      ┌────────────────┐
+│   User Browser   │◀────│ Encryption Utils   │      │ Filecoin Nodes │
+│                  │      │ (crypto-js)        │      │ (Storage Deals)│
+└──────────────────┘      └────────────────────┘      └────────────────┘
 ```
 
 ## 📁 Project Structure
-```text
+```plaintext
 datavault/
+├── public/             # Static assets
 ├── src/
-│   ├── components/     # React components
-│   ├── services/       # Business logic & Filecoin integration
-│   ├── contracts/      # Smart contracts
-│   ├── utils/          # Utilities and helpers
-│   └── types/          # TypeScript definitions
-├── docs/               # Documentation
-├── tests/              # Test suites
-└── scripts/            # Deployment scripts
+│   ├── assets/         # Images, etc.
+│   ├── components/     # React UI components (ComplianceUploader, AuditDashboard)
+│   ├── context/        # React context (FilecoinContext - potentially unused/refactor)
+│   ├── contracts/      # Solidity smart contracts and Hardhat config (Separate, not integrated in main flow)
+│   ├── services/       # Core logic (SynapseService.ts)
+│   ├── types/          # TypeScript definitions (compliance.ts)
+│   ├── utils/          # Utility functions (encryption.ts)
+│   ├── App.css         # Main app styles
+│   ├── App.tsx         # Root React component
+│   ├── index.css       # Global styles
+│   └── main.tsx        # Application entry point
+├── tests/              # Vitest tests (e.g., SynapseService.test.ts)
+├── .env.example        # Environment variable template
+├── .gitignore          # Git ignore rules
+├── index.html          # Main HTML entry
+├── package.json        # Project dependencies and scripts
+├── tsconfig.json       # TypeScript config for app
+├── tsconfig.node.json  # TypeScript config for Vite/build tooling
+└── vite.config.ts      # Vite build configuration
 ```
 
 ## 🧪 Testing
 ```bash
-# Run unit tests
-npm test
+# Run unit/integration tests with Vitest
+npm run test # (Configure this script in package.json if needed)
 
-# Run integration tests
-npm run test:integration
-
-# Test Filecoin services
-npm run test:filecoin
+# Test Hardhat contracts (separate from main app)
+cd src/contracts
+npx hardhat test
 ```
 
 ## 🔧 Development
@@ -148,27 +135,22 @@ npm run test:filecoin
 ```bash
 npm run dev
 ```
-2. Deploy smart contracts:
+2. (Optional) Deploy smart contracts:
 ```bash
-npm run deploy:testnet
-```
-3. Run compliance validation:
-```bash
-npm run compliance:check
+cd src/contracts
+npx hardhat ignition deploy ./ignition/modules/YourModule.js --network yourNetworkName
 ```
 
 ## 📊 Compliance Features
-- Automated Audit Trails: Every access and modification logged
-- Retention Policies: Configurable data retention periods
-- Proof Generation: Automated compliance proof creation
-- Access Controls: Role-based data access management
-- Encryption: End-to-end encryption for sensitive data
+- Client-Side Encryption: Ensures data is encrypted before upload.
+- Metadata Storage: Compliance type and retention period stored with data via Synapse.
+- Audit Access Log: Basic local logging of retrieval actions in the dashboard.
+- Integrity Hashing: SHA-256 hash stored for verification.
 
 ## 🆘 Support
-- [Filecoin Onchain Cloud Docs](https://www.filecoin.services/)
+- [Synapse SDK Documentation](https://github.com/FilOzone/synapse-sdk)
 - [Issue Tracker](https://github.com/GauravKarakoti/datavault/issues)
 
 ## 🙏 Acknowledgments
-- Filecoin Onchain Cloud team
-- Protocol Labs ecosystem
+- Filecoin & Protocol Labs ecosystem
 - Synapse SDK contributors

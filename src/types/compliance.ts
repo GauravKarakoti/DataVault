@@ -28,4 +28,6 @@ export interface StorageMetadata {
   pdpProofs: string[];
   storageProviders: string[];
   encryptionHash: string;
+  encryptionIv: string;
+  encryptionSalt: string;
 }
